@@ -20,6 +20,13 @@ public:
     BeastDistortionAudioProcessor();
     ~BeastDistortionAudioProcessor() override;
 
+    // Геттеры для параметров плагина
+    float getGain() const { return gainParam->get(); }
+    float getDrive() const { return driveParam->get(); };
+    float getOutput() const { return outputParam->get(); };
+    int getDistortionType() const { return typeParam->getIndex(); };
+    bool getBypass() const { return bypassParam->get(); };
+
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -54,6 +61,17 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 private:
+    //==============================================================================
+    // Параметры плагина
+    juce::AudioParameterFloat* gainParam;  // Входной уровень сигнала (0-100)
+    juce::AudioParameterFloat* driveParam; // Уровень обработки дисторшна (0-100)
+    juce::AudioParameterFloat* outputParam; // Выходной уровень сигнала (0-100)
+    juce::AudioParameterChoice* typeParam; // Тип обработки дисторшна
+    juce::AudioParameterBool* bypassParam; // вкл/выкл обработку
+
+    //функция обработки одного сэмпла
+    float processSample(float input, int channel);
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BeastDistortionAudioProcessor)
 };

@@ -22,10 +22,124 @@ BeastDistortionAudioProcessor::BeastDistortionAudioProcessor()
                        )
 #endif
 {
+    //Инициализация параметра Drive
+    addParameter(driveParam = new juce::AudioParameterFloat(
+        "drive",  // ID параметра
+        "Drive",  // Название параметра
+        juce::NormalisableRange<float>(0.f, 100.0f),  // Диапазон значений
+        50.0f, // Значение по умолчанию
+        "Drive", // Единица измерения
+        juce::AudioProcessorParameter::genericParameter, // Тип параметра
+        [](float value, int) {return juce::String(value, 1); } // Форматирование значение
+    ));
+
+    // Инициализация параметра Gain (Входной уровень)
+    addParameter(gainParam = new juce::AudioParameterFloat(
+        "gain",
+        "Gain",
+        juce::NormalisableRange<float>(0.0f, 100.0f),
+        50.0f,
+        "Gain",
+        juce::AudioProcessorParameter::genericParameter,
+        [](float value, int) { return juce::String(value, 1); }
+    ));
+
+    // Инициализация параметра Output (Выходной уровень)
+    addParameter(outputParam = new juce::AudioParameterFloat(
+        "output",
+        "Output",
+        juce::NormalisableRange<float>(0.0f, 100.0f),
+        50.0f,
+        "Output",
+        juce::AudioProcessorParameter::genericParameter,
+        [](float value, int) { return juce::String(value, 1); }
+    ));
+
+    // Список типов дисторшна
+    juce::StringArray distortionTypes;
+    distortionTypes.add("Hard Clip");
+    distortionTypes.add("Soft Clip");
+    distortionTypes.add("Overdrive");
+    distortionTypes.add("Foldback");
+
+    // Инициализация параметра выбора типа дисторшна
+    addParameter(typeParam = new juce::AudioParameterChoice(
+        "type",
+        "Type",
+        distortionTypes,
+        0  // Индекс выбранного по умолчанию (Hard Clip)
+    ));
+
+    // Инициализация параметра Bypass
+    addParameter(bypassParam = new juce::AudioParameterBool(
+        "bypass",
+        "Bypass",
+        false  // По умолчанию выключен
+    ));
+
 }
 
 BeastDistortionAudioProcessor::~BeastDistortionAudioProcessor()
 {
+}
+
+//==============================================================================
+// Обработка одного сэмпла
+float BeastDistortionAudioProcessor::processSample(float input, int channel)
+{
+    // Если bypass включен - пропускаем сигнал без изменений
+    if (bypassParam->get())
+        return input;
+
+    // Получаем текущие значения параметров
+    float gain = gainParam->get();
+    float drive = driveParam->get();
+    float output = outputParam->get();
+    int distortionType = typeParam->getIndex();
+
+    // Преобразуем значения параметров в рабочие диапазоны
+    float gainFactor = 1.0f + (gain / 100.0f) * 4.0f;   // 1.0x - 5.0x усиление входа
+    float driveGain = 1.0f + (drive / 100.0f) * 9.0f;   // 1.0x - 10.0x усиление дисторшна
+    float outputGain = output / 100.0f * 2.0f;          // 0.0 - 2.0 выходное усиление
+
+    //  Применяем входное усиление (Gain)
+    float processed = input * gainFactor;
+
+    // Применяем усиление дисторшна (Drive)
+    processed *= driveGain;
+
+    // Применяем выбранный тип дисторшна
+    switch (distortionType)
+    {
+    case 0: // Hard Clipping
+        processed = juce::jlimit(-1.0f, 1.0f, processed);
+        break;
+
+    case 1: // Soft Clipping
+        processed = std::tanh(processed);
+        break;
+
+    case 2: // Overdrive
+        if (processed > 1.0f)
+            processed = 1.0f - std::exp(-processed);
+        else if (processed < -1.0f)
+            processed = -1.0f + std::exp(processed);
+        break;
+
+    case 3: // Foldback
+        if (processed > 1.0f)
+            processed = 1.0f - (processed - 1.0f);
+        else if (processed < -1.0f)
+            processed = -1.0f - (processed + 1.0f);
+        break;
+
+    default:
+        processed = juce::jlimit(-1.0f, 1.0f, processed);
+        break;
+    }
+
+    // Применяем выходное усиление
+    return processed * outputGain;
 }
 
 //==============================================================================
@@ -154,7 +268,11 @@ void BeastDistortionAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     {
         auto* channelData = buffer.getWritePointer (channel);
 
-        // ..do something to the data...
+        // Обрабатываем каждый сэмпл в канале
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            channelData[sample] = processSample(channelData[sample], channel);
+        }
     }
 }
 

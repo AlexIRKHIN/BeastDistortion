@@ -2,9 +2,8 @@
 
 <JUCERPROJECT id="PsX53M" name="BeastDistortion" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginFormats="buildVST3"
-              pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               pluginVST3Category="Distortion" pluginVSTCategory="kPlugCategEffect"
-              maxBinaryFileSize="20971520">
+              maxBinaryFileSize="20971520" companyName="AlexIRHIN">
   <MAINGROUP id="lmrbRr" name="BeastDistortion">
     <GROUP id="{FA3507BF-A1AF-C206-7BC5-D9D00A53AE35}" name="Source">
       <FILE id="kPwiln" name="PluginProcessor.cpp" compile="1" resource="0"
