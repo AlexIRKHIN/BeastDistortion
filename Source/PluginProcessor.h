@@ -27,6 +27,13 @@ public:
     int getDistortionType() const { return typeParam->getIndex(); };
     bool getBypass() const { return bypassParam->get(); };
 
+    // Публичные методы для доступа к параметрам
+    juce::AudioParameterFloat* getGainParam() const { return gainParam; }
+    juce::AudioParameterFloat* getDriveParam() const { return driveParam; }
+    juce::AudioParameterFloat* getOutputParam() const { return outputParam; }
+    juce::AudioParameterChoice* getTypeParam() const { return typeParam; }
+    juce::AudioParameterBool* getBypassParam() const { return bypassParam; }
+
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
