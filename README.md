@@ -40,7 +40,4 @@ BEAST DISTORTION - аудиоплагин для обработки звука �
 - AudioParameterChoice* typeParam;     // Тип дисторшна
 - AudioParameterBool* bypassParam;     // Вкл/Выкл обработку
 
-UML диаграммы:
-<img width="1548" height="1028" alt="image" src="https://github.com/user-attachments/assets/096a79e3-565b-453d-a799-d1d1c71465ae" />
-
 Сделано с ❤️ и C++
