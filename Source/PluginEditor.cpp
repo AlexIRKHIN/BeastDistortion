@@ -121,6 +121,24 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor (BeastD
     titleLabel.setFont(juce::Font(42.0f, juce::Font::bold));
     addAndMakeVisible(titleLabel);
 
+    // === СИНХРОНИЗАЦИЯ С ПАРАМЕТРАМИ ПРОЦЕССОРА ===
+
+    // Синхронизируем слайдеры с текущими значениями параметров
+    gainSlider.setValue(audioProcessor.getGainParam()->get(), juce::dontSendNotification);
+    distortionSlider.setValue(audioProcessor.getDriveParam()->get(), juce::dontSendNotification);
+    outputSlider.setValue(audioProcessor.getOutputParam()->get(), juce::dontSendNotification);
+
+    // Синхронизируем комбобокс типа дисторшна
+    typeComboBox.setSelectedId(audioProcessor.getTypeParam()->getIndex() + 1, juce::dontSendNotification);
+
+    // Синхронизируем кнопку bypass
+    bypassButton.setToggleState(audioProcessor.getBypassParam()->get(), juce::dontSendNotification);
+
+    // Обновляем лейблы значений
+    gainValueLabel.setText(juce::String(gainSlider.getValue(), 0), juce::dontSendNotification);
+    distortionValueLabel.setText(juce::String(distortionSlider.getValue(), 0), juce::dontSendNotification);
+    outputValueLabel.setText(juce::String(outputSlider.getValue(), 0), juce::dontSendNotification);
+
 }
 
 BeastDistortionAudioProcessorEditor::~BeastDistortionAudioProcessorEditor()

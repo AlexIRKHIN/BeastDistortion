@@ -97,10 +97,15 @@ float BeastDistortionAudioProcessor::processSample(float input, int channel)
     float output = outputParam->get();
     int distortionType = typeParam->getIndex();
 
-    // Преобразуем значения параметров в рабочие диапазоны
-    float gainFactor = 1.0f + (gain / 100.0f) * 4.0f;   // 1.0x - 5.0x усиление входа
-    float driveGain = 1.0f + (drive / 100.0f) * 9.0f;   // 1.0x - 10.0x усиление дисторшна
-    float outputGain = output / 100.0f * 2.0f;          // 0.0 - 2.0 выходное усиление
+    // Gain: от 0.5x до 2.0x (при 50 = 1.25x)
+    float gainFactor = 0.5f + (gain / 100.0f) * 1.5f;
+
+    // Drive: от 1.0x до 6.0x (при 50 = 3.5x)
+    float driveGain = 1.0f + (drive / 100.0f) * 5.0f;
+
+    // Output: от 0.25x до 1.5x (при 50 = 0.6x)
+    // Компенсируем усиление от gain и drive при средних настройках
+    float outputGain = 0.2f + (output / 100.0f) * 0.8f;
 
     //  Применяем входное усиление (Gain)
     float processed = input * gainFactor;
