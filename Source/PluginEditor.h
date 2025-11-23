@@ -60,10 +60,6 @@ private:
     juce::TextButton resetButton;
     juce::TextButton bypassButton;
 
-    // Пресеты (пока заглушка)
-    juce::ComboBox presetComboBox;
-    juce::Label presetLabel;
-
     // Заголовок
     juce::Label titleLabel;
 

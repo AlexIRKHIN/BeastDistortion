@@ -12,7 +12,7 @@
 
 
 //==============================================================================
-BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor (BeastDistortionAudioProcessor& p)
+BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor(BeastDistortionAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p), needsDelayedSync(true)
 {
     // Размер окна 800x600 
@@ -73,26 +73,11 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor (BeastD
     typeComboBox.setColour(juce::ComboBox::arrowColourId, sliderColour);
     addAndMakeVisible(typeComboBox);
 
-    typeLabel.setText("TYPE:", juce::dontSendNotification);
-    typeLabel.setJustificationType(juce::Justification::centredLeft);
+    typeLabel.setText("DISTORTION TYPE", juce::dontSendNotification);
+    typeLabel.setJustificationType(juce::Justification::centred);
     typeLabel.setColour(juce::Label::textColourId, textColour);
     typeLabel.setFont(juce::Font(16.0f, juce::Font::bold));
     addAndMakeVisible(typeLabel);
-
-    // === НАСТРОЙКА ПРЕСЕТОВ ===
-
-    presetComboBox.addItem("DEFAULT", 1);
-    presetComboBox.setSelectedId(1);
-    presetComboBox.setColour(juce::ComboBox::backgroundColourId, juce::Colour(70, 70, 70));
-    presetComboBox.setColour(juce::ComboBox::textColourId, textColour);
-    presetComboBox.setColour(juce::ComboBox::arrowColourId, sliderColour);
-    addAndMakeVisible(presetComboBox);
-
-    presetLabel.setText("PRESET:", juce::dontSendNotification);
-    presetLabel.setJustificationType(juce::Justification::centredLeft);
-    presetLabel.setColour(juce::Label::textColourId, textColour);
-    presetLabel.setFont(juce::Font(16.0f, juce::Font::bold));
-    addAndMakeVisible(presetLabel);
 
     // === НАСТРОЙКА КНОПОК ===
 
@@ -169,83 +154,116 @@ void BeastDistortionAudioProcessorEditor::timerCallback()
 }
 
 //==============================================================================
-void BeastDistortionAudioProcessorEditor::paint (juce::Graphics& g)
+void BeastDistortionAudioProcessorEditor::paint(juce::Graphics& g)
 {
+    // Заливаем фон
     g.fillAll(backgroundColour);
 
+    // Устанавливаем белый цвет для прямоугольников
+    g.setColour(juce::Colours::white);
+
+    // Получаем размеры окна
+    auto width = getWidth();
+    auto height = getHeight();
+    int borderThickness = 10; // Толщина рамки
+
+    // 1. Верхняя рамка
+    g.fillRect(0, 0, width, borderThickness);
+
+    // 2. Нижняя рамка
+    g.fillRect(0, height - borderThickness, width, borderThickness);
+
+    // 3. Левая рамка
+    g.fillRect(0, 0, borderThickness, height);
+
+    // 4. Правая рамка
+    g.fillRect(width - borderThickness, 0, borderThickness, height);
+
+    // 5. Разделительная линия под заголовком
+    int headerBottom = 10 + 80; // Нижняя граница заголовка
+    int separatorY = headerBottom + 10; // Положение разделителя (10px ниже заголовка)
+    g.fillRect(0, separatorY, width, borderThickness);
 }
 
 void BeastDistortionAudioProcessorEditor::resized()
 {
     auto area = getLocalBounds();
 
+    // Учитываем рамки - оставляем отступ от краев
+    area.reduce(10, 10); // Отступ 10px от каждой стороны для рамки
+
     // Заголовок - верхняя часть
-    titleLabel.setBounds(0, 10, 800, 80);
+    titleLabel.setBounds(0, 10, getWidth(), 80);
 
-    // Основная область с слайдерами
-    auto sliderArea = area.removeFromTop(350); // Высота области со слайдерами
-    sliderArea.removeFromTop(80); // Отступаем от заголовка
+    // === ОБЛАСТЬ СЛАЙДЕРОВ ===
 
-    // Распределяем пространство для 3 слайдеров
-    auto sliderWidth = sliderArea.getWidth() / 3;
-    int sliderSize = 180; // Размер слайдера (диаметр)
+    // Высота области слайдеров (от разделителя до комбобокса)
+    int sliderAreaHeight = 400;
+    auto sliderArea = area.withTrimmedTop(100).withHeight(sliderAreaHeight);
+
+    int sliderSize = 200; // Размер слайдера
     int labelHeight = 30;
     int valueLabelHeight = 40;
+    int verticalOffset = 70; 
+    int horizontalSpacing = 150; // Расстояние между слайдерами
+    int sliderRaise = 70; // Поднимаем все слайдеры на 70 пикселей
+    int distortionLower = 60;
 
-    // GAIN SLIDER
-    auto gainArea = sliderArea.removeFromLeft(sliderWidth);
-    gainSlider.setBounds(gainArea.withSizeKeepingCentre(sliderSize, sliderSize));
+    // CENTER - DISTORTION SLIDER (главный слайдер)
+    auto centerX = getWidth() / 2;
+    auto distortionY = sliderArea.getY() + (sliderArea.getHeight() / 2) - (sliderSize / 2) - sliderRaise + distortionLower;
+
+    distortionSlider.setBounds(centerX - sliderSize / 2, distortionY, sliderSize, sliderSize);
     // Значение внутри слайдера
-    gainValueLabel.setBounds(gainArea.withSizeKeepingCentre(60, valueLabelHeight)
-        .withY(gainSlider.getBounds().getCentreY() - valueLabelHeight / 2));
+    distortionValueLabel.setBounds(centerX - 30, distortionY + sliderSize / 2 - valueLabelHeight / 2, 60, valueLabelHeight);
     // Подпись под слайдером
-    gainLabel.setBounds(gainArea.withTrimmedTop(sliderSize + 10)
-        .withHeight(labelHeight));
+    distortionLabel.setBounds(centerX - 80, distortionY + sliderSize - 18, 160, labelHeight);
 
-    // DISTORTION SLIDER
-    auto distortionArea = sliderArea.removeFromLeft(sliderWidth);
-    distortionSlider.setBounds(distortionArea.withSizeKeepingCentre(sliderSize, sliderSize));
+    // LEFT - GAIN SLIDER (слева и выше)
+    auto gainX = centerX - sliderSize - horizontalSpacing;
+    auto gainY = distortionY - verticalOffset;
+
+    gainSlider.setBounds(gainX, gainY, sliderSize, sliderSize);
     // Значение внутри слайдера
-    distortionValueLabel.setBounds(distortionArea.withSizeKeepingCentre(60, valueLabelHeight)
-        .withY(distortionSlider.getBounds().getCentreY() - valueLabelHeight / 2));
+    gainValueLabel.setBounds(gainX + sliderSize / 2 - 30, gainY + sliderSize / 2 - valueLabelHeight / 2, 60, valueLabelHeight);
     // Подпись под слайдером
-    distortionLabel.setBounds(distortionArea.withTrimmedTop(sliderSize + 10)
-        .withHeight(labelHeight));
+    gainLabel.setBounds(gainX + sliderSize / 2 - 40, gainY + sliderSize - 18, 80, labelHeight);
 
-    // OUTPUT SLIDER
-    auto outputArea = sliderArea;
-    outputSlider.setBounds(outputArea.withSizeKeepingCentre(sliderSize, sliderSize));
+    // RIGHT - OUTPUT SLIDER (справа и выше)
+    auto outputX = centerX + horizontalSpacing;
+    auto outputY = distortionY - verticalOffset;
+
+    outputSlider.setBounds(outputX, outputY, sliderSize, sliderSize);
     // Значение внутри слайдера
-    outputValueLabel.setBounds(outputArea.withSizeKeepingCentre(60, valueLabelHeight)
-        .withY(outputSlider.getBounds().getCentreY() - valueLabelHeight / 2));
+    outputValueLabel.setBounds(outputX + sliderSize / 2 - 30, outputY + sliderSize / 2 - valueLabelHeight / 2, 60, valueLabelHeight);
     // Подпись под слайдером
-    outputLabel.setBounds(outputArea.withTrimmedTop(sliderSize + 10)
-        .withHeight(labelHeight));
+    outputLabel.setBounds(outputX + sliderSize / 2 - 40, outputY + sliderSize - 18, 80, labelHeight);
 
-    // === НИЖНЯЯ ПАНЕЛЬ КОНТРОЛЕВ ===
-    auto controlArea = area.reduced(20);
-    controlArea.removeFromTop(20); // Отступ сверху
+    // === КОМБОБОКС И КНОПКИ ===
 
-    // Верхний ряд: TYPE и PRESET
-    auto topRow = controlArea.removeFromTop(40);
-    auto controlWidth = topRow.getWidth() / 2;
+    // TYPE COMBOBOX
+    int comboBoxWidth = 220;
+    int comboBoxHeight = 50;
+    int typeY = getHeight() - 170;
 
-    // TYPE
-    auto typeArea = topRow.removeFromLeft(controlWidth).reduced(5);
-    typeLabel.setBounds(typeArea.removeFromLeft(60));
-    typeComboBox.setBounds(typeArea.reduced(5, 0));
+    typeComboBox.setBounds(centerX - comboBoxWidth / 2, typeY, comboBoxWidth, comboBoxHeight);
 
-    // PRESET
-    auto presetArea = topRow.reduced(5);
-    presetLabel.setBounds(presetArea.removeFromLeft(60));
-    presetComboBox.setBounds(presetArea.reduced(5, 0));
+    // TYPE LABEL
+    typeLabel.setText("DISTORTION TYPE", juce::dontSendNotification);
+    typeLabel.setJustificationType(juce::Justification::centred);
+    typeLabel.setBounds(centerX - 100, typeY + comboBoxHeight + 2, 200, 25);
 
-    // Нижний ряд: кнопки
-    auto bottomRow = controlArea.removeFromTop(50);
-    auto buttonWidth = bottomRow.getWidth() / 2;
+    // === КНОПКИ ===
 
-    resetButton.setBounds(bottomRow.removeFromLeft(buttonWidth).reduced(20, 5));
-    bypassButton.setBounds(bottomRow.reduced(20, 5));
+    int buttonWidth = 240;
+    int buttonHeight = 40;
+    int buttonY = getHeight() - 10 - 30 - buttonHeight;
+
+    // RESET button - слева
+    resetButton.setBounds(50, buttonY, buttonWidth, buttonHeight);
+
+    // ON/OFF button - справа
+    bypassButton.setBounds(getWidth() - 50 - buttonWidth, buttonY, buttonWidth, buttonHeight);
 }
 
 //==============================================================================
@@ -295,6 +313,5 @@ void BeastDistortionAudioProcessorEditor::buttonClicked(juce::Button* button)
     {
         // используем getBypassParam() 
         audioProcessor.getBypassParam()->setValueNotifyingHost(bypassButton.getToggleState() ? 1.0f : 0.0f);
-        
     }
 }
