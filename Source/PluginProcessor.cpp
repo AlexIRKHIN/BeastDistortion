@@ -295,15 +295,34 @@ juce::AudioProcessorEditor* BeastDistortionAudioProcessor::createEditor()
 //==============================================================================
 void BeastDistortionAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    // Создаем XML структуру для сохранения состояния
+    std::unique_ptr<juce::XmlElement> xml(new juce::XmlElement("BeastDistortionSettings"));
+
+    // Сохраняем значения всех параметров
+    xml->setAttribute("gain", gainParam->get());
+    xml->setAttribute("drive", driveParam->get());
+    xml->setAttribute("output", outputParam->get());
+    xml->setAttribute("type", typeParam->getIndex());
+    xml->setAttribute("bypass", bypassParam->get());
+
+    // Копируем XML в бинарные данные
+    copyXmlToBinary(*xml, destData);
 }
 
 void BeastDistortionAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    // Восстанавливаем состояние из бинарных данных
+    std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
+
+    if (xml != nullptr && xml->hasTagName("BeastDistortionSettings"))
+    {
+        // Восстанавливаем значения параметров
+        gainParam->setValueNotifyingHost(xml->getDoubleAttribute("gain", 50.0) / 100.0f);
+        driveParam->setValueNotifyingHost(xml->getDoubleAttribute("drive", 50.0) / 100.0f);
+        outputParam->setValueNotifyingHost(xml->getDoubleAttribute("output", 50.0) / 100.0f);
+        typeParam->setValueNotifyingHost(xml->getIntAttribute("type", 0) / 3.0f);
+        bypassParam->setValueNotifyingHost(xml->getBoolAttribute("bypass", false) ? 1.0f : 0.0f);
+    }
 }
 
 //==============================================================================

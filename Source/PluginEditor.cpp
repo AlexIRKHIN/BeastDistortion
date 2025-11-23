@@ -13,7 +13,7 @@
 
 //==============================================================================
 BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor (BeastDistortionAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+    : AudioProcessorEditor (&p), audioProcessor (p), needsDelayedSync(true)
 {
     // Размер окна 800x600 
     setSize(800, 600);
@@ -25,11 +25,10 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor (BeastD
 
     // === НАСТРОЙКА СЛАЙДЕРОВ ===
 
-    auto setupSlider = [this](juce::Slider& slider, juce::Label& valueLabel, double defaultValue) {
+    auto setupSlider = [this](juce::Slider& slider, juce::Label& valueLabel) {
         slider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
         slider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
         slider.setRange(0.0, 100.0, 1.0);
-        slider.setValue(defaultValue);
         slider.setColour(juce::Slider::rotarySliderFillColourId, sliderColour);
         slider.setColour(juce::Slider::rotarySliderOutlineColourId, juce::Colour(100, 100, 100));
         slider.setColour(juce::Slider::thumbColourId, juce::Colour(255, 255, 255));
@@ -41,13 +40,12 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor (BeastD
         valueLabel.setJustificationType(juce::Justification::centred);
         valueLabel.setColour(juce::Label::textColourId, juce::Colour(255, 255, 255));
         valueLabel.setFont(juce::Font(18.0f, juce::Font::bold));
-        valueLabel.setText(juce::String(defaultValue, 0), juce::dontSendNotification);
         addAndMakeVisible(valueLabel);
         };
 
-    setupSlider(gainSlider, gainValueLabel, 50.0);
-    setupSlider(distortionSlider, distortionValueLabel, 50.0);
-    setupSlider(outputSlider, outputValueLabel, 50.0);
+    setupSlider(gainSlider, gainValueLabel);
+    setupSlider(distortionSlider, distortionValueLabel);
+    setupSlider(outputSlider, outputValueLabel);
 
     // === НАСТРОЙКА ЛЕЙБЛОВ СЛАЙДЕРОВ ===
 
@@ -69,7 +67,6 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor (BeastD
     typeComboBox.addItem("SOFT CLIP", 2);
     typeComboBox.addItem("OVERDRIVE", 3);
     typeComboBox.addItem("FOLDBACK", 4);
-    typeComboBox.setSelectedId(1);
     typeComboBox.addListener(this);
     typeComboBox.setColour(juce::ComboBox::backgroundColourId, juce::Colour(70, 70, 70));
     typeComboBox.setColour(juce::ComboBox::textColourId, textColour);
@@ -139,10 +136,36 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor (BeastD
     distortionValueLabel.setText(juce::String(distortionSlider.getValue(), 0), juce::dontSendNotification);
     outputValueLabel.setText(juce::String(outputSlider.getValue(), 0), juce::dontSendNotification);
 
+    // Запускаем таймер для отложенной синхронизации
+    startTimer(100);  // 100ms задержка
 }
 
 BeastDistortionAudioProcessorEditor::~BeastDistortionAudioProcessorEditor()
 {
+    // Останавливаем таймер при уничтожении редактора
+    stopTimer();
+}
+
+void BeastDistortionAudioProcessorEditor::timerCallback()
+{
+    if (needsDelayedSync)
+    {
+        // Останавливаем таймер после первой синхронизации
+        stopTimer();
+        needsDelayedSync = false;
+
+        // Повторная синхронизация с параметрами процессора
+        gainSlider.setValue(audioProcessor.getGainParam()->get(), juce::dontSendNotification);
+        distortionSlider.setValue(audioProcessor.getDriveParam()->get(), juce::dontSendNotification);
+        outputSlider.setValue(audioProcessor.getOutputParam()->get(), juce::dontSendNotification);
+        typeComboBox.setSelectedId(audioProcessor.getTypeParam()->getIndex() + 1, juce::dontSendNotification);
+        bypassButton.setToggleState(audioProcessor.getBypassParam()->get(), juce::dontSendNotification);
+
+        // Обновляем лейблы значений
+        gainValueLabel.setText(juce::String(gainSlider.getValue(), 0), juce::dontSendNotification);
+        distortionValueLabel.setText(juce::String(distortionSlider.getValue(), 0), juce::dontSendNotification);
+        outputValueLabel.setText(juce::String(outputSlider.getValue(), 0), juce::dontSendNotification);
+    }
 }
 
 //==============================================================================

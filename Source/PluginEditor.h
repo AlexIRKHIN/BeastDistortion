@@ -17,8 +17,8 @@
 class BeastDistortionAudioProcessorEditor  : public juce::AudioProcessorEditor,
     public juce::Slider::Listener,
     public juce::ComboBox::Listener,
-    public juce::Button::Listener
-
+    public juce::Button::Listener,
+    public juce::Timer
 {
 public:
     BeastDistortionAudioProcessorEditor (BeastDistortionAudioProcessor&);
@@ -32,6 +32,7 @@ public:
     void sliderValueChanged(juce::Slider* slider) override;
     void comboBoxChanged(juce::ComboBox* comboBox) override;
     void buttonClicked(juce::Button* button) override;
+    void timerCallback() override;  // Метод таймера
 
 private:
     BeastDistortionAudioProcessor& audioProcessor;
@@ -70,6 +71,9 @@ private:
     juce::Colour backgroundColour;
     juce::Colour textColour;
     juce::Colour sliderColour;
+
+    // Флаг для отслеживания первой синхронизации
+    bool needsDelayedSync;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BeastDistortionAudioProcessorEditor)
 };
