@@ -14,6 +14,7 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="rMXOY3" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="VYJ07s" name="beast.png" compile="0" resource="1" file="Resources/beast.png"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_analytics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

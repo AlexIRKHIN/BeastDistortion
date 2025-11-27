@@ -39,7 +39,7 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor(BeastDi
         // Настраиваем лейбл значения
         valueLabel.setJustificationType(juce::Justification::centred);
         valueLabel.setColour(juce::Label::textColourId, juce::Colour(255, 255, 255));
-        valueLabel.setFont(juce::Font("Impact", 54.0f, juce::Font::bold));
+        valueLabel.setFont(juce::Font("Century Gothic", 54.0f, juce::Font::plain));
         valueLabel.setInterceptsMouseClicks(false, false);
         addAndMakeVisible(valueLabel);
         };
@@ -98,11 +98,30 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor(BeastDi
 
     // === НАСТРОЙКА ЗАГОЛОВКА ===
 
-    titleLabel.setText("BEAST DISTORTION", juce::dontSendNotification);
-    titleLabel.setJustificationType(juce::Justification::centred);
-    titleLabel.setColour(juce::Label::textColourId, juce::Colour(255, 80, 0));
-    titleLabel.setFont(juce::Font("Impact", 42.0f, juce::Font::plain));
-    addAndMakeVisible(titleLabel);
+   // Левый текст "BEAST"
+    leftTitleLabel.setText("BEAST", juce::dontSendNotification);
+    leftTitleLabel.setJustificationType(juce::Justification::centredRight);
+    leftTitleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    leftTitleLabel.setFont(juce::Font("Impact", 42.0f, juce::Font::plain));
+    addAndMakeVisible(leftTitleLabel);
+
+    // Логотип - ЗАГРУЗКА ИЗ BINARY DATA
+    auto logoImage = juce::ImageCache::getFromMemory(BinaryData::beast_png, BinaryData::beast_pngSize);
+
+    if (logoImage.isValid())
+    {
+        logoComponent.setImage(logoImage, juce::RectanglePlacement::centred);
+    }
+    // Если логотип не загрузился - просто не показываем его, но плагин продолжает работать
+    logoComponent.setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(logoComponent);
+
+    // Правый текст "DISTORTION"
+    rightTitleLabel.setText("DISTORTION", juce::dontSendNotification);
+    rightTitleLabel.setJustificationType(juce::Justification::centredLeft);
+    rightTitleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    rightTitleLabel.setFont(juce::Font("Impact", 42.0f, juce::Font::plain));
+    addAndMakeVisible(rightTitleLabel);
 
     // === СИНХРОНИЗАЦИЯ С ПАРАМЕТРАМИ ПРОЦЕССОРА ===
 
@@ -194,7 +213,34 @@ void BeastDistortionAudioProcessorEditor::resized()
     area.reduce(10, 10); // Отступ 10px от каждой стороны для рамки
 
     // Заголовок - верхняя часть
-    titleLabel.setBounds(0, 10, getWidth(), 80);
+    int headerHeight = 80;
+    int logoSize = 120; // Размер логотипа в пикселях
+    int textWidth = 200; // Ширина каждой текстовой части
+
+    // Область заголовка
+    auto headerArea = juce::Rectangle<int>(0, 10, getWidth(), headerHeight);
+
+    // Распределяем пространство: [BEAST] [ЛОГО] [DISTORTION]
+    int totalWidth = textWidth * 2 + logoSize;
+    int startX = (getWidth() - totalWidth) / 2;
+
+    // Левый текст "BEAST"
+    leftTitleLabel.setBounds(startX,
+        headerArea.getY() - 15,  // Поднимаем вверх
+        textWidth,
+        headerHeight);
+
+    // Логотип
+    logoComponent.setBounds(startX + textWidth,
+        headerArea.getY() + (headerHeight - logoSize) / 2 + 5,
+        logoSize,
+        logoSize);
+
+    // Правый текст "DISTORTION"
+    rightTitleLabel.setBounds(startX + textWidth + logoSize,
+        headerArea.getY() + 15,  // Опускаем вниз
+        textWidth,
+        headerHeight);
 
     // === ОБЛАСТЬ СЛАЙДЕРОВ ===
 

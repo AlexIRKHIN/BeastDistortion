@@ -61,7 +61,9 @@ private:
     juce::TextButton bypassButton;
 
     // Заголовок
-    juce::Label titleLabel;
+    juce::Label leftTitleLabel;          // "BEAST"
+    juce::ImageComponent logoComponent;  // Компонент для логотипа
+    juce::Label rightTitleLabel;         // "DISTORTION"
 
     // Цвета
     juce::Colour backgroundColour;
