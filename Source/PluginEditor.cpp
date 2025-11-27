@@ -39,7 +39,8 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor(BeastDi
         // Настраиваем лейбл значения
         valueLabel.setJustificationType(juce::Justification::centred);
         valueLabel.setColour(juce::Label::textColourId, juce::Colour(255, 255, 255));
-        valueLabel.setFont(juce::Font(18.0f, juce::Font::bold));
+        valueLabel.setFont(juce::Font("Impact", 54.0f, juce::Font::bold));
+        valueLabel.setInterceptsMouseClicks(false, false);
         addAndMakeVisible(valueLabel);
         };
 
@@ -53,7 +54,7 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor(BeastDi
         label.setText(text, juce::dontSendNotification);
         label.setJustificationType(juce::Justification::centred);
         label.setColour(juce::Label::textColourId, textColour);
-        label.setFont(juce::Font(16.0f, juce::Font::bold));
+        label.setFont(juce::Font("Tahoma", 24.0f, juce::Font::bold));
         addAndMakeVisible(label);
         };
 
@@ -76,7 +77,7 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor(BeastDi
     typeLabel.setText("DISTORTION TYPE", juce::dontSendNotification);
     typeLabel.setJustificationType(juce::Justification::centred);
     typeLabel.setColour(juce::Label::textColourId, textColour);
-    typeLabel.setFont(juce::Font(16.0f, juce::Font::bold));
+    typeLabel.setFont(juce::Font("Tahoma", 16.0f, juce::Font::bold));
     addAndMakeVisible(typeLabel);
 
     // === НАСТРОЙКА КНОПОК ===
@@ -84,14 +85,14 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor(BeastDi
     resetButton.setButtonText("RESET");
     resetButton.addListener(this);
     resetButton.setColour(juce::TextButton::buttonColourId, juce::Colour(80, 80, 80));
-    resetButton.setColour(juce::TextButton::textColourOffId, textColour);
+    resetButton.setColour(juce::TextButton::textColourOffId, sliderColour);
     addAndMakeVisible(resetButton);
 
     bypassButton.setButtonText("ON/OFF");
     bypassButton.setClickingTogglesState(true);
     bypassButton.addListener(this);
     bypassButton.setColour(juce::TextButton::buttonColourId, juce::Colour(80, 80, 80));
-    bypassButton.setColour(juce::TextButton::textColourOffId, textColour);
+    bypassButton.setColour(juce::TextButton::textColourOffId, juce::Colours::limegreen);
     bypassButton.setColour(juce::TextButton::textColourOnId, sliderColour);
     addAndMakeVisible(bypassButton);
 
@@ -100,7 +101,7 @@ BeastDistortionAudioProcessorEditor::BeastDistortionAudioProcessorEditor(BeastDi
     titleLabel.setText("BEAST DISTORTION", juce::dontSendNotification);
     titleLabel.setJustificationType(juce::Justification::centred);
     titleLabel.setColour(juce::Label::textColourId, juce::Colour(255, 80, 0));
-    titleLabel.setFont(juce::Font(42.0f, juce::Font::bold));
+    titleLabel.setFont(juce::Font("Impact", 42.0f, juce::Font::plain));
     addAndMakeVisible(titleLabel);
 
     // === СИНХРОНИЗАЦИЯ С ПАРАМЕТРАМИ ПРОЦЕССОРА ===
@@ -202,8 +203,8 @@ void BeastDistortionAudioProcessorEditor::resized()
     auto sliderArea = area.withTrimmedTop(100).withHeight(sliderAreaHeight);
 
     int sliderSize = 200; // Размер слайдера
-    int labelHeight = 30;
-    int valueLabelHeight = 40;
+    int labelHeight = 40;
+    int valueLabelHeight = 120;
     int verticalOffset = 70; 
     int horizontalSpacing = 150; // Расстояние между слайдерами
     int sliderRaise = 70; // Поднимаем все слайдеры на 70 пикселей
@@ -215,9 +216,8 @@ void BeastDistortionAudioProcessorEditor::resized()
 
     distortionSlider.setBounds(centerX - sliderSize / 2, distortionY, sliderSize, sliderSize);
     // Значение внутри слайдера
-    distortionValueLabel.setBounds(centerX - 30, distortionY + sliderSize / 2 - valueLabelHeight / 2, 60, valueLabelHeight);
-    // Подпись под слайдером
-    distortionLabel.setBounds(centerX - 80, distortionY + sliderSize - 18, 160, labelHeight);
+    distortionValueLabel.setBounds(centerX - 50, distortionY + sliderSize / 2 - valueLabelHeight / 2, 100, valueLabelHeight);
+    distortionLabel.setBounds(centerX - 90, distortionY + sliderSize - 25, 180, labelHeight);
 
     // LEFT - GAIN SLIDER (слева и выше)
     auto gainX = centerX - sliderSize - horizontalSpacing;
@@ -225,9 +225,9 @@ void BeastDistortionAudioProcessorEditor::resized()
 
     gainSlider.setBounds(gainX, gainY, sliderSize, sliderSize);
     // Значение внутри слайдера
-    gainValueLabel.setBounds(gainX + sliderSize / 2 - 30, gainY + sliderSize / 2 - valueLabelHeight / 2, 60, valueLabelHeight);
+    gainValueLabel.setBounds(gainX + sliderSize / 2 - 50, gainY + sliderSize / 2 - valueLabelHeight / 2, 100, valueLabelHeight);
     // Подпись под слайдером
-    gainLabel.setBounds(gainX + sliderSize / 2 - 40, gainY + sliderSize - 18, 80, labelHeight);
+    gainLabel.setBounds(gainX + sliderSize / 2 - 60, gainY + sliderSize - 25, 120, labelHeight);
 
     // RIGHT - OUTPUT SLIDER (справа и выше)
     auto outputX = centerX + horizontalSpacing;
@@ -235,9 +235,9 @@ void BeastDistortionAudioProcessorEditor::resized()
 
     outputSlider.setBounds(outputX, outputY, sliderSize, sliderSize);
     // Значение внутри слайдера
-    outputValueLabel.setBounds(outputX + sliderSize / 2 - 30, outputY + sliderSize / 2 - valueLabelHeight / 2, 60, valueLabelHeight);
+    outputValueLabel.setBounds(outputX + sliderSize / 2 - 50, outputY + sliderSize / 2 - valueLabelHeight / 2, 100, valueLabelHeight);
     // Подпись под слайдером
-    outputLabel.setBounds(outputX + sliderSize / 2 - 40, outputY + sliderSize - 18, 80, labelHeight);
+    outputLabel.setBounds(outputX + sliderSize / 2 - 60, outputY + sliderSize - 25, 120, labelHeight);
 
     // === КОМБОБОКС И КНОПКИ ===
 
