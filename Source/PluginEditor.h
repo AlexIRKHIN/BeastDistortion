@@ -12,8 +12,8 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
-/**
-*/
+// Редактор аудиоплагина Beast Distortion
+// Отвечает за весь пользовательский интерфейс и обработку взаимодействий
 class BeastDistortionAudioProcessorEditor  : public juce::AudioProcessorEditor,
     public juce::Slider::Listener,
     public juce::ComboBox::Listener,
@@ -21,57 +21,78 @@ class BeastDistortionAudioProcessorEditor  : public juce::AudioProcessorEditor,
     public juce::Timer
 {
 public:
+
+    // Конструктор - создает редактор и инициализирует все компоненты интерфейса 
     BeastDistortionAudioProcessorEditor (BeastDistortionAudioProcessor&);
+
+    // Деструктор
     ~BeastDistortionAudioProcessorEditor() override;
 
     //==============================================================================
+    // Основной метод отрисовки - рисует фон и рамки
     void paint (juce::Graphics&) override;
+
+    // Метод компоновки - размещает все компоненты интерфейса
     void resized() override;
 
-    // Наследуем методы слушателей
+    //==============================================================================
+    // Методы обратного вызова слушателей
+
+    // Вызывается при изменении значения любого слайдера - обновляет соответствующий параметр
     void sliderValueChanged(juce::Slider* slider) override;
+
+    // Вызывается при изменении выбора типа дисторшна
     void comboBoxChanged(juce::ComboBox* comboBox) override;
+
+    // Вызывается при нажатии кнопок
     void buttonClicked(juce::Button* button) override;
-    void timerCallback() override;  // Метод таймера
+
+    // Callback таймера для отложенной синхронизации с параметрами процессора
+    void timerCallback() override;
 
 private:
+    // Ссылка на аудиопроцессор
     BeastDistortionAudioProcessor& audioProcessor;
 
-    // Слайдеры (крутилки)
-    juce::Slider gainSlider;
-    juce::Slider distortionSlider;
-    juce::Slider outputSlider;
+    //==============================================================================
+    // Компоненты интерфейса
+    
+    // Слайдеры (Фейдеры)
+    juce::Slider gainSlider;        // Регулятор входного уровня сигнала (0-100)
+    juce::Slider distortionSlider;  // Регулятор интенсивности эффекта дисторшна (0-100)
+    juce::Slider outputSlider;      // Регулятор выходного уровня сигнала (0-100)
 
-    // Лейблы для слайдеров
-    juce::Label gainLabel;
-    juce::Label distortionLabel;
-    juce::Label outputLabel;
+    // Подписи слайдеров
+    juce::Label gainLabel;          // Подпись "GAIN"
+    juce::Label distortionLabel;    // Подпись "DISTORTION"        
+    juce::Label outputLabel;        // Подпись "OUTPUT"
 
     // Лейблы значений слайдеров
-    juce::Label gainValueLabel;
-    juce::Label distortionValueLabel;
-    juce::Label outputValueLabel;
+    juce::Label gainValueLabel;         // Отображает текущее значение Gain
+    juce::Label distortionValueLabel;   // Отображает текущее значение Distortion
+    juce::Label outputValueLabel;       // Отображает текущее значение Output
 
-    // Выбор типа дисторшна
-    juce::ComboBox typeComboBox;
-    juce::Label typeLabel;
+    // Выбор типа эффекта дисторшна
+    juce::ComboBox typeComboBox;        // Выпадающий список для выбора типа дисторшна
+    juce::Label typeLabel;              // Подпись "DISTORTION TYPE"
 
     // Кнопки
-    juce::TextButton resetButton;
-    juce::TextButton bypassButton;
+    juce::TextButton resetButton;       // Сбрасывает все параметры к значениям по умолчанию
+    juce::TextButton bypassButton;      // Включает/выключает обработку плагина
 
-    // Заголовок
-    juce::Label leftTitleLabel;          // "BEAST"
-    juce::ImageComponent logoComponent;  // Компонент для логотипа
-    juce::Label rightTitleLabel;         // "DISTORTION"
+    // Компоненты заголовка с логотипом
+    juce::Label leftTitleLabel;          // Текст "BEAST"
+    juce::ImageComponent logoComponent;  // Изображение логотипа Beast
+    juce::Label rightTitleLabel;         // Текст "DISTORTION"
 
     // Цвета
-    juce::Colour backgroundColour;
-    juce::Colour textColour;
-    juce::Colour sliderColour;
+    juce::Colour backgroundColour;      // Темно-серый фон (#282828)
+    juce::Colour textColour;            // Светло-серый текст (#C8C8C8)
+    juce::Colour sliderColour;          // Оранжевый акцентный цвет для слайдеров (#FF5000)
 
-    // Флаг для отслеживания первой синхронизации
-    bool needsDelayedSync;
+    //==============================================================================
+    // Управление состоянием
+    bool needsDelayedSync;              // Флаг для первоначальной синхронизации параметров
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BeastDistortionAudioProcessorEditor)
 };
