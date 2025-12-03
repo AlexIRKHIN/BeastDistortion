@@ -1,0 +1,2 @@
+Лицензия: MIT License
+Исходный код: https://github.com/AlexIRKHIN/BeastDistortion.git
