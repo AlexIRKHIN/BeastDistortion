@@ -40,4 +40,8 @@ BEAST DISTORTION - аудиоплагин для обработки звука �
 - AudioParameterChoice* typeParam;     // Тип дисторшна
 - AudioParameterBool* bypassParam;     // Вкл/Выкл обработку
 
+## Установка
+1. Скачайте дистрибутив BeastDistotion_1.0.0
+2. Следуйте инструкции README файла из скачанного дистрибутива
+
 Сделано с ❤️ и C++
